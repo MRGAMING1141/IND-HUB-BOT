@@ -8,7 +8,7 @@ const {
   SlashCommandBuilder,
 } = require("discord.js");
 
-const TOKEN = process.env.TOKEN || "c390d6104e7182ebb0e02c0ace0ba56d1abfeadd7c6fa28ce203853893a584b9";
+const TOKEN = process.env.TOKEN || "MTUzNTI2OTQ3NjY0MjIwMTcxMA.G1xyO0.uoLCvvVVQnHmwzXyQAu0R4AvBukMUq9VdcChAw";
 
 const SCRIPT = `loadstring(game:HttpGet("https://raw.githubusercontent.com/MRGAMING1141/Mrisreal/refs/heads/main/IND%20HUB%20LOADER"))()`;
 
