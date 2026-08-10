@@ -1,48 +1,29 @@
 # IND OBFUSCATOR
 
-Heavy Luau transformation UI and protected-loader backend by MR_GAMING1141.
+Standalone browser Luau transformer and Pastefy loader generator by MR_GAMING1141.
 
-## GitHub Pages
+## GitHub Pages — no Vercel required
 
-GitHub Pages serves `obfuscator/index.html` as a static frontend. The repository root `index.html` redirects visitors into the obfuscator page.
+The repository root `index.html` opens `obfuscator/`. The obfuscation pipeline runs entirely in the browser.
 
-The frontend needs the URL of the deployed Vercel API. Enter it in **Vercel API URL** and press **SAVE API**.
+For **Auto Upload to Pastefy**, enter your own Pastefy API token in the page. The token is held only in page memory and is never committed to GitHub. Pastefy's API requires authentication for creating pastes.
 
-## Vercel backend
+Pastefy API documentation: https://docs.pastefy.app/api/
 
-Deploy the `obfuscator` directory as the Vercel project root. The `api/` directory contains:
+The generated loader is:
 
-- `GET /api/health`
-- `POST /api/obfuscate`
-- `GET /api/loader/:token`
-
-Set these Vercel environment variables:
-
-- `PAYLOAD_SECRET` — long random secret
-- `PUBLIC_URL` — your Vercel project URL
-- `PAYLOAD_TTL_SECONDS` — optional token lifetime, default 86400
-- `PASTEFY_API_TOKEN` — optional Pastefy API v2 token
-- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` — recommended for production token storage
-
-The Pastefy token is never sent to the browser.
-
-## Local development
-
-From `obfuscator/`:
-
-```bash
-npm install
-npm run dev
+```lua
+loadstring(game:HttpGet("PASTEFY_RAW_URL"))()
 ```
 
-The legacy Express server is kept for local testing. Vercel uses the `api/` serverless functions instead.
+Without Pastefy upload, the page still produces and lets you copy the transformed Luau source.
+
+## Optional Vercel backend
+
+The `backend/` and `api/` files are retained for a future server-side deployment. They are not required for the GitHub Pages version.
 
 ## Security notes
 
-The protected payload is stored server-side and the generated loader contains only a short token URL. Redis/Upstash is recommended on Vercel because serverless instances are not a durable shared in-memory database.
+A browser-only obfuscator cannot make code impossible to inspect after it executes on a client. The standalone mode avoids putting the transformed source inside the generated loadstring by using Pastefy's raw URL when upload is enabled.
 
-Client-executed code can still be inspected at runtime. No client-side obfuscator can make executable code mathematically invisible after it reaches the client.
-
-## Pastefy
-
-When `PASTEFY_API_TOKEN` is configured, the obfuscation endpoint automatically uploads the transformed source to Pastefy and returns the raw URL plus a generated `loadstring(game:HttpGet(...))()` loader.
+Never commit a Pastefy API token, OpenAI API key, or other secret to the repository.
