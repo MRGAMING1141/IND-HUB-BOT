@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
 
     const payload = transform(source, level, options);
     const id = token();
-    const secret = process.env.PAYLOAD_SECRET || 'dev-secret-change-me';
+    const secret = process.env.PAYLOAD_SECRET || 'OlgI1kNFFj6NQwyDeoGwGTivmWh6VUxzfRWgGKDdzaFEEpqYixA1n0u8dtBO';
     const key = Buffer.from(secret + id);
     const data = Buffer.from(payload, 'utf8');
     for (let i = 0; i < data.length; i++) data[i] ^= key[i % key.length];
