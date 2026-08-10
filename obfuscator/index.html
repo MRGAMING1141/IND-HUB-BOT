@@ -1,25 +1,43 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>IND OBFUSCATOR</title><link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="IND OBFUSCATOR - protected Luau transformation and loader generator">
+<title>IND OBFUSCATOR</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="bg"></div><main class="wrap">
-<header><div class="brand">IND <span>OBFUSCATOR</span></div><div class="by">Made By MR_GAMING1141</div></header>
-<section class="hero"><h1>Heavy Luau Protection</h1><p>Transform your Luau source and generate a protected loader endpoint.</p></section>
-<section class="grid">
-<div class="card"><label>Luau Source</label><textarea id="source" spellcheck="false" placeholder="Paste your Luau code here..."></textarea></div>
-<div class="card options"><label>Protection</label>
-<select id="level"><option value="normal">Normal</option><option value="strong">Strong</option><option value="extreme">Extreme</option><option value="max" selected>MAX</option></select>
-<label>Loader display text</label><input id="display" value="IND OBFUSCATOR PROTECTED LOADER">
-<label class="check"><input id="rename" type="checkbox" checked> Rename local identifiers</label>
-<label class="check"><input id="strings" type="checkbox" checked> Encode strings</label>
-<label class="check"><input id="junk" type="checkbox" checked> Add harmless junk</label>
-<label class="check"><input id="integrity" type="checkbox" checked> Integrity metadata</label>
-<button id="obfuscate">OBFUSCATE</button><div id="status"></div></div>
+<div class="bg"></div>
+<main class="wrap">
+<header>
+  <div><div class="brand">IND <span>OBFUSCATOR</span></div><div class="by">Made By MR_GAMING1141</div></div>
+  <div class="pill">MAX PROTECTION</div>
+</header>
+<section class="hero"><h1>Heavy Luau Protection</h1><p>Transform your Luau source and generate a short protected loader. The large payload stays on the backend.</p></section>
+<section class="card setup">
+  <div><label for="apiBox">Vercel API URL</label><input id="apiBox" placeholder="https://your-project.vercel.app"></div>
+  <button id="saveApi">SAVE API</button>
 </section>
-<section class="card output"><div class="outhead"><label>Generated Loader</label><button id="copy">COPY</button></div><textarea id="loader" readonly placeholder="Your short loader will appear here..."></textarea></section>
-<section class="card output"><div class="outhead"><label>Protected Payload Preview</label></div><textarea id="payload" readonly></textarea></section>
-<footer>Client-executed code can still be inspected at runtime. This service keeps the large payload off the generated loader.</footer>
-</main><script src="app.js"></script></body></html>
+<section class="grid">
+<div class="card"><label for="source">Luau Source</label><textarea id="source" spellcheck="false" placeholder="Paste your Luau code here..."></textarea></div>
+<div class="card options">
+  <label for="level">Protection</label>
+  <select id="level"><option value="normal">Normal</option><option value="strong">Strong</option><option value="extreme">Extreme</option><option value="max" selected>MAX</option></select>
+  <label for="display">Loader display text</label><input id="display" value="IND OBFUSCATOR PROTECTED LOADER">
+  <label class="check"><input id="rename" type="checkbox" checked> Conservative local renaming</label>
+  <label class="check"><input id="strings" type="checkbox" checked> Encode strings</label>
+  <label class="check"><input id="junk" type="checkbox" checked> Add harmless junk</label>
+  <label class="check"><input id="integrity" type="checkbox" checked> Integrity metadata</label>
+  <label class="check"><input id="pastefy" type="checkbox" checked> Auto upload to Pastefy</label>
+  <button id="obfuscate">OBFUSCATE</button><div id="status"></div>
+</div>
+</section>
+<section class="card output"><div class="outhead"><label>Generated Loader</label><button id="copy">COPY</button></div><textarea id="loader" readonly placeholder="Your loader will appear here..."></textarea></section>
+<section class="card output"><div class="outhead"><label>Pastefy URL</label><button id="copyPaste">COPY</button></div><input id="pasteUrl" readonly placeholder="Pastefy raw URL will appear here..."></section>
+<section class="card output"><div class="outhead"><label>Build Information</label></div><textarea id="payload" readonly></textarea></section>
+<footer>GitHub Pages serves the UI. Deploy <code>obfuscator/</code> to Vercel for the API. Keep all secrets in Vercel environment variables.</footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
