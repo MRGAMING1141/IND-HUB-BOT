@@ -1,31 +1,9 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="IND OBFUSCATOR - standalone Luau transformer and Pastefy loader generator">
-<title>IND OBFUSCATOR</title><link rel="stylesheet" href="style.css">
-</head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="IND OBFUSCATOR - standalone Luau obfuscator"><title>IND OBFUSCATOR</title><link rel="stylesheet" href="style.css"></head>
 <body><div class="bg"></div><main class="wrap">
 <header><div><div class="brand">IND <span>OBFUSCATOR</span></div><div class="by">Made By MR_GAMING1141</div></div><div class="pill">STANDALONE MODE</div></header>
-<section class="hero"><h1>Heavy Luau Protection</h1><p>Runs directly in your browser. No Vercel or backend is required for local transformation.</p></section>
-<section class="card setup">
-<div><label for="pasteToken">Pastefy API Token <small>(only kept in this browser session)</small></label><input id="pasteToken" type="password" autocomplete="off" placeholder="Pastefy API token for Auto Upload"></div>
-<div class="token-actions"><button id="clearToken" class="secondary">CLEAR TOKEN</button><a href="https://pastefy.app/apikeys" target="_blank" rel="noopener">GET TOKEN</a></div>
-</section>
-<section class="grid">
-<div class="card"><label for="source">Luau Source</label><textarea id="source" spellcheck="false" placeholder="Paste your Luau code here..."></textarea></div>
-<div class="card options">
-<label for="level">Protection</label><select id="level"><option value="normal">Normal</option><option value="strong">Strong</option><option value="extreme">Extreme</option><option value="max" selected>MAX</option></select>
-<label for="display">Loader display text</label><input id="display" value="IND OBFUSCATOR PROTECTED LOADER">
-<label class="check"><input id="rename" type="checkbox" checked> Conservative local renaming</label>
-<label class="check"><input id="strings" type="checkbox" checked> Encode strings</label>
-<label class="check"><input id="junk" type="checkbox" checked> Add harmless junk</label>
-<label class="check"><input id="integrity" type="checkbox" checked> Integrity metadata</label>
-<label class="check"><input id="pastefy" type="checkbox" checked> Auto upload to Pastefy</label>
-<button id="obfuscate">OBFUSCATE</button><div id="status"></div>
-</div></section>
-<section class="card output"><div class="outhead"><label>Generated Loader</label><button id="copy">COPY</button></div><textarea id="loader" readonly placeholder="Enable Pastefy upload to generate a short loadstring..."></textarea></section>
-<section class="card output"><div class="outhead"><label>Pastefy Raw URL</label><button id="copyPaste">COPY</button></div><input id="pasteUrl" readonly placeholder="Pastefy raw URL will appear here..."></section>
-<section class="card output"><div class="outhead"><label>Obfuscated Source</label><button id="copySource">COPY</button></div><textarea id="payload" readonly placeholder="Obfuscated source will appear here..."></textarea></section>
-<footer>GitHub Pages handles everything locally. Pastefy API authentication is performed from your browser; the token is never written to this repository.</footer>
+<section class="hero"><h1>MAX Luau Protection</h1><p>Browser-only Luau transformation. No Vercel, Pastefy, API token, or backend required.</p></section>
+<section class="grid"><div class="card"><label for="source">Luau Source</label><textarea id="source" spellcheck="false" placeholder="Paste your Luau code here..."></textarea></div><div class="card options"><label for="level">Protection</label><select id="level"><option value="normal">Normal</option><option value="strong">Strong</option><option value="extreme">Extreme</option><option value="max" selected>MAX</option></select><label for="display">Output label</label><input id="display" value="IND OBFUSCATOR MAX"><label class="check"><input id="rename" type="checkbox" checked> Rename local identifiers</label><label class="check"><input id="strings" type="checkbox" checked> Encode strings</label><label class="check"><input id="junk" type="checkbox" checked> Add harmless junk</label><label class="check"><input id="integrity" type="checkbox" checked> Add integrity marker</label><button id="obfuscate">OBFUSCATE</button><div id="status"></div></div></section>
+<section class="card output"><div class="outhead"><label>Obfuscated Source</label><button id="copySource">COPY</button></div><textarea id="payload" readonly placeholder="MAX obfuscated source appears here..."></textarea></section>
+<footer>Standalone mode: nothing is uploaded or stored by this page.</footer>
 </main><script src="app.js"></script></body></html>
