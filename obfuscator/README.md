@@ -1,24 +1,48 @@
 # IND OBFUSCATOR
 
-Heavy Luau source transformation and protected-loader prototype for IND HUB.
+Heavy Luau transformation UI and protected-loader backend by MR_GAMING1141.
 
-## Run
+## GitHub Pages
+
+GitHub Pages serves `obfuscator/index.html` as a static frontend. The repository root `index.html` redirects visitors into the obfuscator page.
+
+The frontend needs the URL of the deployed Vercel API. Enter it in **Vercel API URL** and press **SAVE API**.
+
+## Vercel backend
+
+Deploy the `obfuscator` directory as the Vercel project root. The `api/` directory contains:
+
+- `GET /api/health`
+- `POST /api/obfuscate`
+- `GET /api/loader/:token`
+
+Set these Vercel environment variables:
+
+- `PAYLOAD_SECRET` — long random secret
+- `PUBLIC_URL` — your Vercel project URL
+- `PAYLOAD_TTL_SECONDS` — optional token lifetime, default 86400
+- `PASTEFY_API_TOKEN` — optional Pastefy API v2 token
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` — recommended for production token storage
+
+The Pastefy token is never sent to the browser.
+
+## Local development
+
+From `obfuscator/`:
 
 ```bash
-cd obfuscator/backend
 npm install
-cp .env.example .env
-npm start
+npm run dev
 ```
 
-Open `http://localhost:3000/obfuscator/`.
+The legacy Express server is kept for local testing. Vercel uses the `api/` serverless functions instead.
 
-## Environment
+## Security notes
 
-- `PUBLIC_URL` must point at the deployed backend so generated loaders use the correct host.
-- `PAYLOAD_SECRET` should be a long random secret and must never be committed.
-- `OPENAI_API_KEY` is reserved for future optional AI-assisted transformations and must remain server-side.
+The protected payload is stored server-side and the generated loader contains only a short token URL. Redis/Upstash is recommended on Vercel because serverless instances are not a durable shared in-memory database.
 
-## Security note
+Client-executed code can still be inspected at runtime. No client-side obfuscator can make executable code mathematically invisible after it reaches the client.
 
-The generated loader contains a short-lived token instead of the large source payload. The backend stores the transformed payload and removes it after successful retrieval or expiration. Client-executed code can still be inspected at runtime; no client-side design can make executable code absolutely invisible.
+## Pastefy
+
+When `PASTEFY_API_TOKEN` is configured, the obfuscation endpoint automatically uploads the transformed source to Pastefy and returns the raw URL plus a generated `loadstring(game:HttpGet(...))()` loader.
