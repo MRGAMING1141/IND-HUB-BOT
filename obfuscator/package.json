@@ -1,0 +1,10 @@
+{
+  "name": "ind-obfuscator",
+  "private": true,
+  "version": "2.0.0",
+  "description": "IND HUB Luau obfuscator frontend and Vercel API",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "dev": "node backend/server.js"
+  }
+}
