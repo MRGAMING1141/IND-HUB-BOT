@@ -7,16 +7,20 @@ function junk(s){const a=Math.random().toString(36).slice(2,8);return`local _IND
 function integrity(s){return`local _IND_MARKER=${JSON.stringify(Math.random().toString(36).slice(2,14))}\n`+s}
 function transform(s,o){let out=stripComments(s);if(o.rename)out=renameLocals(out);if(o.strings)out=encodeStrings(out);if(o.junk)out=junk(out);if(o.integrity)out=integrity(out);if(o.dtc)out=DTC+out;return`-- IND OBFUSCATOR\n${out.trim()}\n`}
 async function uploadRubis(content){
-  const res=await fetch('https://api.rubis.app/v2/scrap',{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8','Accept':'application/json'},body:content});
+  const title=(($('scriptTitle')&&$('scriptTitle').value.trim())||'IND OBFUSCATOR SCRIPT').slice(0,120);
+  const body=JSON.stringify({content,title,public:true});
+  const res=await fetch('https://api.rubis.app/v2/scrap',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body});
   const text=await res.text();let data={};try{data=JSON.parse(text)}catch{}
-  if(!res.ok)throw new Error(`Rubiš upload failed (${res.status}): ${data.message||data.error||text.slice(0,300)||'Unknown API error'}`);
-  const id=data.id||data.scrapID||data.scrapId||data.data?.id||data.data?.scrapID;
-  const raw=data.raw_url||data.rawUrl||data.data?.raw_url||data.data?.rawUrl||(id?`https://api.rubis.app/v2/scrap/${id}/raw`:null);
-  if(!raw)throw new Error(`Rubiš upload succeeded, but no scrap ID/raw URL was returned. Response: ${text.slice(0,500)}`);
-  return raw;
+  if(!res.ok)throw new Error(`Rubiš upload failed (${res.status}): ${data.message||data.error||text.slice(0,400)||'Unknown API error'}`);
+  if(data.success===false)throw new Error(`Rubiš upload failed: ${data.message||data.error||text.slice(0,400)||'Unknown API error'}`);
+  const raw=data.raw||data.raw_url||data.rawUrl||data.data?.raw||data.data?.raw_url||data.data?.rawUrl;
+  const id=data.scrapID||data.scrapId||data.id||data.data?.scrapID||data.data?.scrapId||data.data?.id;
+  const url=raw||(id?`https://api.rubis.app/v2/scrap/${encodeURIComponent(id)}/raw`:null);
+  if(!url)throw new Error(`Rubiš returned success but no raw URL was found. Response: ${text.slice(0,700)}`);
+  return {raw:url,id,title,view:data.view||data.view_with_key||(id?`https://rubis.app/view/?scrap=${encodeURIComponent(id)}`:null),response:data};
 }
 async function copyText(v,msg){if(!v)return;try{await navigator.clipboard.writeText(v)}catch{const a=document.createElement('textarea');a.value=v;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}$('status').textContent=msg}
 $('copySource').onclick=()=>copyText($('payload').value,'Protected output copied.');
 $('copyUrl').onclick=()=>copyText($('rubisUrl').value,'Rubiš URL copied.');
 $('copyLoader').onclick=()=>copyText($('loader').value,'Loadstring copied.');
-$('obfuscate').onclick=async()=>{const s=$('source').value.trim();if(!s){$('status').textContent='Paste Luau source first.';return}const o={rename:$('rename').checked,strings:$('strings').checked,junk:$('junk').checked,integrity:$('integrity').checked,dtc:$('dtc').checked};$('obfuscate').disabled=true;$('status').textContent='Obfuscating locally…';$('rubisUrl').value='';$('loader').value='';try{const out=transform(s,o);$('payload').value=out;if($('uploadRubis').checked){$('status').textContent='Uploading to Rubiš…';const raw=await uploadRubis(out);$('rubisUrl').value=raw;$('loader').value=`loadstring(game:HttpGet(${JSON.stringify(raw)}))()`;$('status').textContent='Done — Rubiš URL and loadstring generated.'}else $('status').textContent='Done — protected output generated locally.'}catch(e){$('status').textContent=e.message||'Operation failed.'}finally{$('obfuscate').disabled=false}};
+$('obfuscate').onclick=async()=>{const s=$('source').value.trim();if(!s){$('status').textContent='Paste Luau source first.';return}const o={rename:$('rename').checked,strings:$('strings').checked,junk:$('junk').checked,integrity:$('integrity').checked,dtc:$('dtc').checked};$('obfuscate').disabled=true;$('status').textContent='Obfuscating locally…';$('rubisUrl').value='';$('loader').value='';try{const out=transform(s,o);$('payload').value=out;$('status').textContent='Uploading to Rubiš…';const result=await uploadRubis(out);$('rubisUrl').value=result.raw;$('loader').value=`loadstring(game:HttpGet(${JSON.stringify(result.raw)}))()`;$('status').textContent=`Done — Rubiš upload successful (${result.id}).`;}catch(e){$('status').textContent=e.message||'Operation failed.'}finally{$('obfuscate').disabled=false}};
