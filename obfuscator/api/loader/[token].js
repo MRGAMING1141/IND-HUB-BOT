@@ -9,7 +9,7 @@ module.exports = async function handler(req, res) {
     const item = await take(id);
     if (!item) return res.status(404).send('-- invalid or expired token');
 
-    const secret = process.env.PAYLOAD_SECRET || 'dev-secret-change-me';
+    const secret = process.env.PAYLOAD_SECRET || 'OlgI1kNFFj6NQwyDeoGwGTivmWh6VUxzfRWgGKDdzaFEEpqYixA1n0u8dtBO';
     const key = Buffer.from(secret + id);
     const data = Buffer.from(item.payload, 'base64url');
     for (let i = 0; i < data.length; i++) data[i] ^= key[i % key.length];
