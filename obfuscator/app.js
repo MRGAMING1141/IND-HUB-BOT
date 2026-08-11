@@ -2,26 +2,35 @@ const $=id=>document.getElementById(id);
 
 function normalizeText(s){return String(s??'').replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n')}
 
+async function request(url,options,stage){
+  try{return await fetch(url,options)}catch(e){
+    const msg=e&&e.message?e.message:String(e);
+    throw new Error(`${stage} failed: ${msg}. This is usually a browser CORS/network restriction on GitHub Pages; the page will not create a fake URL.`);
+  }
+}
+
 async function uploadRubis(content){
-  const title=(($('scriptTitle')&&$('scriptTitle').value.trim())||'IND HUB SCRIPT').slice(0,120));
-  const res=await fetch('https://api.rubis.app/v2/scrap',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({content,title,public:true})});
+  const title=(($('scriptTitle')&&$('scriptTitle').value.trim())||'IND HUB SCRIPT').slice(0,120);
+  let res=await request('https://api.rubis.app/v2/scrap',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({content,title,public:true})},'Rubiš upload');
   const text=await res.text();
   let data={};
   try{data=JSON.parse(text)}catch{}
-  if(!res.ok)throw new Error(`Rubiš upload failed (${res.status}): ${data.message||data.error||text.slice(0,400)||'Unknown API error'}`);
-  if(data.success===false)throw new Error(`Rubiš upload failed: ${data.message||data.error||text.slice(0,400)||'Unknown API error'}`);
+  if(!res.ok)throw new Error(`Rubiš upload rejected (${res.status}): ${data.message||data.error||text.slice(0,500)||'Unknown API error'}`);
+  if(data.success===false)throw new Error(`Rubiš upload rejected: ${data.message||data.error||text.slice(0,500)||'Unknown API error'}`);
+
   const raw=data.raw||data.raw_url||data.rawUrl||data.data?.raw||data.data?.raw_url||data.data?.rawUrl;
   const id=data.scrapID||data.scrapId||data.id||data.data?.scrapID||data.data?.scrapId||data.data?.id;
+  if(!raw&&!id)throw new Error(`Rubiš reported success but returned neither a raw URL nor a scrap ID. No loader was generated. API response: ${text.slice(0,900)}`);
   const url=raw||(id?`https://api.rubis.app/v2/scrap/${encodeURIComponent(id)}/raw`:null);
-  if(!url)throw new Error(`Rubiš returned success but no raw URL was found. Response: ${text.slice(0,700)}`);
+  if(!url)throw new Error('Rubiš did not return a usable raw URL. No loader was generated.');
 
-  // Never trust the returned URL alone: read it back and verify it contains exactly what was uploaded.
-  const verifyUrl=url+(url.includes('?')?'&':'?')+'_ind_verify='+Date.now();
-  const verify=await fetch(verifyUrl,{method:'GET',cache:'no-store',headers:{'Accept':'text/plain'}});
-  const remote=await verify.text();
-  if(!verify.ok)throw new Error(`Rubiš created scrap ${id||'(unknown)'} but its raw URL could not be read back (${verify.status}). No loader was generated.`);
+  // Strict verification: read the exact Rubiš raw URL and compare it to the uploaded text.
+  const verify=request(url,{method:'GET',cache:'no-store',headers:{'Accept':'text/plain'}},'Rubiš verification');
+  const verifyResponse=await verify;
+  const remote=await verifyResponse.text();
+  if(!verifyResponse.ok)throw new Error(`Rubiš created scrap ${id||'(unknown)'}, but the raw URL returned HTTP ${verifyResponse.status}. No loader was generated.`);
   if(normalizeText(remote)!==normalizeText(content)){
-    throw new Error(`Rubiš created scrap ${id||'(unknown)'}, but raw content verification FAILED. The generated URL was not accepted because its contents do not match your uploaded script.`);
+    throw new Error(`Rubiš created scrap ${id||'(unknown)'}, but verification FAILED: the raw content does not exactly match the uploaded source. No loader was generated.`);
   }
   return{raw:url,id};
 }
@@ -65,7 +74,7 @@ $('upload').onclick=async()=>{
     const result=await uploadRubis(source);
     $('rubisUrl').value=result.raw;
     $('loader').value=`loadstring(game:HttpGet(${JSON.stringify(result.raw)}))()`;
-    $('status').textContent=`Verified ✓ — NEW Rubiš scrap ${result.id} contains your uploaded data.`;
+    $('status').textContent=`Verified ✓ — NEW Rubiš scrap ${result.id||'created'} contains your uploaded data.`;
   }catch(e){$('status').textContent=e.message||'Upload failed.'}
   finally{$('upload').disabled=false}
 };
