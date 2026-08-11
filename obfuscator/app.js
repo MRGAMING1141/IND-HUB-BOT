@@ -1,15 +1,60 @@
 const $=id=>document.getElementById(id);
-const DTC=`local function _IND_DTC(n,v) if not v then warn("DTC:",n) return false end return true end\nlocal function _IND_CHECK()\n local _p=game:GetService("Players").LocalPlayer\n if not _IND_DTC("player",_p) then return false end\n local _c=_p.Character if not _IND_DTC("character",_c) then return false end\n local _h=_c:FindFirstChildOfClass("Humanoid") local _r=_c:FindFirstChild("HumanoidRootPart")\n if not _IND_DTC("humanoid",_h) or not _IND_DTC("root",_r) then return false end\n local _tests={{"health",typeof(_h.Health)=="number"},{"maxhealth",typeof(_h.MaxHealth)=="number"},{"cframe",typeof(_r.CFrame)=="CFrame"},{"position",typeof(_r.Position)=="Vector3"},{"size",typeof(_r.Size)=="Vector3"},{"color",typeof(_r.Color)=="Color3"},{"material",typeof(_r.Material)=="EnumItem"},{"transparency",typeof(_r.Transparency)=="number"},{"anchored",typeof(_r.Anchored)=="boolean"},{"collide",typeof(_r.CanCollide)=="boolean"},{"walkspeed",typeof(_h.WalkSpeed)=="number"},{"platformstand",typeof(_h.PlatformStand)=="boolean"},{"userid",typeof(_p.UserId)=="number"},{"name",typeof(_p.Name)=="string"},{"displayname",typeof(_p.DisplayName)=="string"}}\n for _,_t in ipairs(_tests) do if not _IND_DTC(_t[1],_t[2]) then return false end end\n local _q=Instance.new("Part") _q.Anchored=true _q.CanCollide=false _q.Size=Vector3.new(1,1,1) _q.Parent=workspace\n local _v=_q.Color if not _IND_DTC("partcolor",typeof(_v)=="Color3" and _v.R>=0 and _v.R<=1 and _v.G>=0 and _v.G<=1 and _v.B>=0 and _v.B<=1) then _q:Destroy() return false end\n _q:Destroy() return _IND_DTC("destroy",_q.Parent==nil)\nend\nif not _IND_CHECK() then return end\n`;
-function stripComments(s){let o='',i=0,q=null;while(i<s.length){let c=s[i],n=s[i+1];if(q){o+=c;if(c==='\\')o+=s[++i]||'';else if(c===q)q=null;i++;continue}if(c==='"'||c==="'"){q=c;o+=c;i++;continue}if(c==='-'&&n==='-'){i+=2;while(i<s.length&&s[i]!=='\n')i++;if(s[i]==='\n')o+='\n';continue}o+=c;i++}return o}
-function encodeStrings(s){let o='',i=0;while(i<s.length){let q=s[i];if(q!=='"'&&q!=="'"){o+=q;i++;continue}let j=i+1,v='',ok=false;while(j<s.length){let c=s[j];if(c==='\\'){v+=c+(s[j+1]||'');j+=2;continue}if(c===q){ok=true;break}v+=c;j++}if(!ok){o+=q;i++;continue}if(v.length&&v.length<=512)o+=`string.char(${Array.from(new TextEncoder().encode(v)).join(',')})`;else o+=q+v+q;i=j+1}return o}
-function renameLocals(s){const m=new Map();let n=0;s=s.replace(/\blocal\s+([A-Za-z_][A-Za-z0-9_]*)/g,(x,k)=>{if(!m.has(k))m.set(k,`_i${(++n).toString(36)}`);return`local ${m.get(k)}`});for(const[k,v]of m){const e=k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');s=s.replace(new RegExp(`\\b${e}\\b`,'g'),v)}return s}
-function junk(s){const a=Math.random().toString(36).slice(2,8);return`local _IND_${a}=0\nif _IND_${a}~=0 then return end\n`+s}
-function integrity(s){return`local _IND_MARKER=${JSON.stringify(Math.random().toString(36).slice(2,14))}\n`+s}
-function transform(s,o){let out=stripComments(s);if(o.rename)out=renameLocals(out);if(o.strings)out=encodeStrings(out);if(o.junk)out=junk(out);if(o.integrity)out=integrity(out);if(o.dtc)out=DTC+out;return`-- IND OBFUSCATOR\n${out.trim()}\n`}
-async function uploadRubis(content){const title=(($('scriptTitle')&&$('scriptTitle').value.trim())||'IND OBFUSCATOR SCRIPT').slice(0,120);const body=JSON.stringify({content,title,public:true});const res=await fetch('https://api.rubis.app/v2/scrap',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body});const text=await res.text();let data={};try{data=JSON.parse(text)}catch{}if(!res.ok)throw new Error(`Rubiš upload failed (${res.status}): ${data.message||data.error||text.slice(0,400)||'Unknown API error'}`);if(data.success===false)throw new Error(`Rubiš upload failed: ${data.message||data.error||text.slice(0,400)||'Unknown API error'}`);const raw=data.raw||data.raw_url||data.rawUrl||data.data?.raw||data.data?.raw_url||data.data?.rawUrl;const id=data.scrapID||data.scrapId||data.id||data.data?.scrapID||data.data?.scrapId||data.data?.id;const url=raw||(id?`https://api.rubis.app/v2/scrap/${encodeURIComponent(id)}/raw`:null);if(!url)throw new Error(`Rubiš returned success but no raw URL was found. Response: ${text.slice(0,700)}`);return{raw:url,id,title,view:data.view||data.view_with_key||(id?`https://rubis.app/view/?scrap=${encodeURIComponent(id)}`:null),response:data}}
-async function copyText(v,msg){if(!v)return;try{await navigator.clipboard.writeText(v)}catch{const a=document.createElement('textarea');a.value=v;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}$('status').textContent=msg}
-async function loadFile(file){if(!file)return;const name=file.name.toLowerCase();if(!name.endsWith('.lua')&&!name.endsWith('.luau')){$('status').textContent='Please choose a .lua or .luau file.';return}if(file.size>5*1024*1024){$('status').textContent='File is too large. Maximum size is 5 MB.';return}try{$('source').value=await file.text();$('fileInfo').textContent=`${file.name} • ${(file.size/1024).toFixed(1)} KB`;$('status').textContent=`Loaded ${file.name} locally.`}catch(e){$('status').textContent=`Could not read file: ${e.message||e}`}}
-$('chooseFile').onclick=()=>$('luaFile').click();$('luaFile').addEventListener('change',e=>loadFile(e.target.files?.[0]));
-const dz=$('dropZone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.add('dragover')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.remove('dragover')}));dz.addEventListener('drop',e=>loadFile(e.dataTransfer.files?.[0]));dz.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('luaFile').click()}});
-$('copySource').onclick=()=>copyText($('payload').value,'Protected output copied.');$('copyUrl').onclick=()=>copyText($('rubisUrl').value,'Rubiš URL copied.');$('copyLoader').onclick=()=>copyText($('loader').value,'Loadstring copied.');
-$('obfuscate').onclick=async()=>{const s=$('source').value.trim();if(!s){$('status').textContent='Paste Luau source or choose a .lua/.luau file first.';return}const o={rename:$('rename').checked,strings:$('strings').checked,junk:$('junk').checked,integrity:$('integrity').checked,dtc:$('dtc').checked};$('obfuscate').disabled=true;$('status').textContent='Obfuscating locally…';$('rubisUrl').value='';$('loader').value='';try{const out=transform(s,o);$('payload').value=out;$('status').textContent='Uploading fresh build to Rubiš…';const result=await uploadRubis(out);$('rubisUrl').value=result.raw;$('loader').value=`loadstring(game:HttpGet(${JSON.stringify(result.raw)}))()`;$('status').textContent=`Done — NEW Rubiš scrap created (${result.id}).`;}catch(e){$('status').textContent=e.message||'Operation failed.'}finally{$('obfuscate').disabled=false}};
+
+async function uploadRubis(content){
+  const title=(($('scriptTitle')&&$('scriptTitle').value.trim())||'IND HUB SCRIPT').slice(0,120);
+  const res=await fetch('https://api.rubis.app/v2/scrap',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({content,title,public:true})});
+  const text=await res.text();
+  let data={};
+  try{data=JSON.parse(text)}catch{}
+  if(!res.ok)throw new Error(`Rubiš upload failed (${res.status}): ${data.message||data.error||text.slice(0,400)||'Unknown API error'}`);
+  if(data.success===false)throw new Error(`Rubiš upload failed: ${data.message||data.error||text.slice(0,400)||'Unknown API error'}`);
+  const raw=data.raw||data.raw_url||data.rawUrl||data.data?.raw||data.data?.raw_url||data.data?.rawUrl;
+  const id=data.scrapID||data.scrapId||data.id||data.data?.scrapID||data.data?.scrapId||data.data?.id;
+  const url=raw||(id?`https://api.rubis.app/v2/scrap/${encodeURIComponent(id)}/raw`:null);
+  if(!url)throw new Error(`Rubiš returned success but no raw URL was found. Response: ${text.slice(0,700)}`);
+  return{raw:url,id};
+}
+
+async function loadFile(file){
+  if(!file)return;
+  const name=file.name.toLowerCase();
+  if(!name.endsWith('.lua')&&!name.endsWith('.luau')){$('status').textContent='Please choose a .lua or .luau file.';return}
+  if(file.size>5*1024*1024){$('status').textContent='File is too large. Maximum size is 5 MB.';return}
+  try{
+    $('source').value=await file.text();
+    $('fileInfo').textContent=`${file.name} • ${(file.size/1024).toFixed(1)} KB`;
+    $('status').textContent=`Loaded ${file.name} locally.`;
+  }catch(e){$('status').textContent=`Could not read file: ${e.message||e}`}
+}
+
+$('chooseFile').onclick=()=>$('luaFile').click();
+$('luaFile').addEventListener('change',e=>loadFile(e.target.files?.[0]));
+const dz=$('dropZone');
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.add('dragover')}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.remove('dragover')}));
+dz.addEventListener('drop',e=>loadFile(e.dataTransfer.files?.[0]));
+dz.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('luaFile').click()}});
+
+async function copyText(value,message){
+  if(!value)return;
+  try{await navigator.clipboard.writeText(value)}catch{const a=document.createElement('textarea');a.value=value;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}
+  $('status').textContent=message;
+}
+$('copyLoader').onclick=()=>copyText($('loader').value,'Loadstring copied.');
+$('copyUrl').onclick=()=>copyText($('rubisUrl').value,'Rubiš URL copied.');
+
+$('upload').onclick=async()=>{
+  const source=$('source').value;
+  if(!source.trim()){$('status').textContent='Choose a Lua/Luau file first.';return}
+  $('upload').disabled=true;
+  $('loader').value='';
+  $('rubisUrl').value='';
+  $('status').textContent='Uploading fresh script to Rubiš…';
+  try{
+    const result=await uploadRubis(source);
+    $('rubisUrl').value=result.raw;
+    $('loader').value=`loadstring(game:HttpGet(${JSON.stringify(result.raw)}))()`;
+    $('status').textContent=`Done — NEW Rubiš scrap created: ${result.id}`;
+  }catch(e){$('status').textContent=e.message||'Upload failed.'}
+  finally{$('upload').disabled=false}
+};
