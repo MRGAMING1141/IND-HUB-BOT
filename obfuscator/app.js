@@ -1,7 +1,9 @@
 const $=id=>document.getElementById(id);
 
+function normalizeText(s){return String(s??'').replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n')}
+
 async function uploadRubis(content){
-  const title=(($('scriptTitle')&&$('scriptTitle').value.trim())||'IND HUB SCRIPT').slice(0,120);
+  const title=(($('scriptTitle')&&$('scriptTitle').value.trim())||'IND HUB SCRIPT').slice(0,120));
   const res=await fetch('https://api.rubis.app/v2/scrap',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({content,title,public:true})});
   const text=await res.text();
   let data={};
@@ -12,6 +14,15 @@ async function uploadRubis(content){
   const id=data.scrapID||data.scrapId||data.id||data.data?.scrapID||data.data?.scrapId||data.data?.id;
   const url=raw||(id?`https://api.rubis.app/v2/scrap/${encodeURIComponent(id)}/raw`:null);
   if(!url)throw new Error(`Rubiš returned success but no raw URL was found. Response: ${text.slice(0,700)}`);
+
+  // Never trust the returned URL alone: read it back and verify it contains exactly what was uploaded.
+  const verifyUrl=url+(url.includes('?')?'&':'?')+'_ind_verify='+Date.now();
+  const verify=await fetch(verifyUrl,{method:'GET',cache:'no-store',headers:{'Accept':'text/plain'}});
+  const remote=await verify.text();
+  if(!verify.ok)throw new Error(`Rubiš created scrap ${id||'(unknown)'} but its raw URL could not be read back (${verify.status}). No loader was generated.`);
+  if(normalizeText(remote)!==normalizeText(content)){
+    throw new Error(`Rubiš created scrap ${id||'(unknown)'}, but raw content verification FAILED. The generated URL was not accepted because its contents do not match your uploaded script.`);
+  }
   return{raw:url,id};
 }
 
@@ -19,7 +30,7 @@ async function loadFile(file){
   if(!file)return;
   const name=file.name.toLowerCase();
   if(!name.endsWith('.lua')&&!name.endsWith('.luau')){$('status').textContent='Please choose a .lua or .luau file.';return}
-  if(file.size>5*1024*1024){$('status').textContent='File is too large. Maximum size is 5 MB.';return}
+  if(file.size>3*1024*1024){$('status').textContent='File is too large for the Rubiš free plan (3 MB).';return}
   try{
     $('source').value=await file.text();
     $('fileInfo').textContent=`${file.name} • ${(file.size/1024).toFixed(1)} KB`;
@@ -49,12 +60,12 @@ $('upload').onclick=async()=>{
   $('upload').disabled=true;
   $('loader').value='';
   $('rubisUrl').value='';
-  $('status').textContent='Uploading fresh script to Rubiš…';
+  $('status').textContent='Uploading a NEW script to Rubiš…';
   try{
     const result=await uploadRubis(source);
     $('rubisUrl').value=result.raw;
     $('loader').value=`loadstring(game:HttpGet(${JSON.stringify(result.raw)}))()`;
-    $('status').textContent=`Done — NEW Rubiš scrap created: ${result.id}`;
+    $('status').textContent=`Verified ✓ — NEW Rubiš scrap ${result.id} contains your uploaded data.`;
   }catch(e){$('status').textContent=e.message||'Upload failed.'}
   finally{$('upload').disabled=false}
 };
