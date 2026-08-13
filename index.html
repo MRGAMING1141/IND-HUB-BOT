@@ -3,329 +3,1285 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IND HUB</title>
-<style>
-  :root{
-    --bg:#0d1117;
-    --panel:#151b23;
-    --line:#242c37;
-    --text:#e6edf3;
-    --muted:#8b96a5;
-    --accent:#5ec9a6;
-    --accent-dim:#2e5f4f;
-    --danger:#e5677a;
-    --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:var(--mono);
-    min-height:100vh;
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    padding:48px 16px;
-  }
-  .wrap{width:100%;max-width:640px;}
-  .brand{
-    display:flex;align-items:center;gap:10px;margin-bottom:28px;
-  }
-  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);}
-  .brand h1{font-size:15px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--text);margin:0;}
-  .brand span{color:var(--muted);font-size:12px;}
+<meta name="theme-color" content="#080b10">
+<title>IND HUB — Paste Generator</title>
 
-  .panel{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:22px;
+<style>
+:root{
+  --bg:#070a0f;
+  --bg2:#0b1017;
+  --panel:rgba(17,23,32,.78);
+  --panel2:rgba(11,16,23,.88);
+  --line:rgba(255,255,255,.08);
+  --line2:rgba(255,255,255,.13);
+  --text:#f1f5f9;
+  --muted:#8b96a5;
+  --accent:#62e6b4;
+  --accent2:#2fcf97;
+  --danger:#ff6f83;
+  --shadow:0 25px 80px rgba(0,0,0,.45);
+  --radius:18px;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+  --sans:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:var(--sans);
+  background:
+    radial-gradient(circle at 50% -10%,rgba(98,230,180,.13),transparent 35%),
+    radial-gradient(circle at 0% 80%,rgba(44,113,255,.06),transparent 30%),
+    var(--bg);
+  overflow-x:hidden;
+}
+
+/* Background glow */
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  width:350px;
+  height:350px;
+  border-radius:50%;
+  filter:blur(110px);
+  opacity:.08;
+  pointer-events:none;
+  z-index:-1;
+}
+
+body::before{
+  background:var(--accent);
+  top:-180px;
+  right:-120px;
+}
+
+body::after{
+  background:#4678ff;
+  bottom:-200px;
+  left:-150px;
+}
+
+.container{
+  width:min(720px,calc(100% - 28px));
+  margin:0 auto;
+  padding:42px 0 45px;
+}
+
+/* Header */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:28px;
+  animation:fadeUp .5s ease both;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.logo{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:linear-gradient(145deg,#72f1c1,#2fcf97);
+  color:#06110c;
+  font-weight:900;
+  font-size:16px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.1),
+    0 8px 28px rgba(47,207,151,.2);
+}
+
+.brand-text h1{
+  margin:0;
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.brand-text p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.025);
+  color:var(--muted);
+  font-size:10px;
+  white-space:nowrap;
+}
+
+.status-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 10px var(--accent);
+}
+
+/* Main card */
+.card{
+  position:relative;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  animation:fadeUp .55s .05s ease both;
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  left:20px;
+  right:20px;
+  top:0;
+  height:1px;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(98,230,180,.55),
+    transparent
+  );
+}
+
+/* Tabs */
+.tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  padding:5px;
+  background:#080c12;
+  border:1px solid var(--line);
+  border-radius:12px;
+  margin-bottom:22px;
+}
+
+.tab{
+  position:relative;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  padding:11px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+.tab:hover{
+  color:var(--text);
+}
+
+.tab.active{
+  background:var(--accent);
+  color:#06110c;
+  box-shadow:0 5px 18px rgba(98,230,180,.13);
+}
+
+/* Sections */
+.section{
+  animation:fadeIn .2s ease;
+}
+
+label{
+  display:block;
+  margin:0 0 8px;
+  color:#aeb8c5;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+
+textarea,
+input[type="text"],
+select{
+  width:100%;
+  border:1px solid var(--line);
+  outline:none;
+  background:var(--panel2);
+  color:var(--text);
+  border-radius:11px;
+  font-family:var(--mono);
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+textarea{
+  min-height:250px;
+  resize:vertical;
+  padding:15px;
+  font-size:12px;
+  line-height:1.65;
+}
+
+input[type="text"],
+select{
+  height:45px;
+  padding:0 13px;
+  font-size:12px;
+}
+
+textarea::placeholder,
+input::placeholder{
+  color:#536071;
+}
+
+textarea:focus,
+input[type="text"]:focus,
+select:focus{
+  border-color:rgba(98,230,180,.55);
+  background:#0a1016;
+  box-shadow:0 0 0 3px rgba(98,230,180,.06);
+}
+
+/* File drop */
+.drop{
+  min-height:250px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:25px;
+  border:1.5px dashed #303a48;
+  border-radius:13px;
+  background:rgba(8,12,18,.5);
+  color:var(--muted);
+  cursor:pointer;
+  transition:.25s ease;
+}
+
+.drop:hover,
+.drop.drag{
+  border-color:var(--accent);
+  background:rgba(98,230,180,.045);
+  color:var(--accent);
+  transform:translateY(-1px);
+}
+
+.upload-icon{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  margin-bottom:12px;
+  border-radius:14px;
+  background:rgba(98,230,180,.08);
+  color:var(--accent);
+  font-size:21px;
+}
+
+.drop strong{
+  display:block;
+  margin-bottom:6px;
+  color:var(--text);
+  font-size:13px;
+}
+
+.drop small{
+  font-size:10px;
+  color:#667386;
+}
+
+.file-info{
+  display:none;
+  width:100%;
+  margin-top:14px;
+  padding:9px 11px;
+  border:1px solid rgba(98,230,180,.18);
+  border-radius:8px;
+  background:rgba(98,230,180,.05);
+  color:var(--accent);
+  font-family:var(--mono);
+  font-size:10px;
+  word-break:break-all;
+}
+
+/* Options */
+.options{
+  display:grid;
+  grid-template-columns:1fr 180px;
+  gap:12px;
+  margin-top:18px;
+}
+
+/* Generate button */
+.generate{
+  position:relative;
+  width:100%;
+  height:49px;
+  margin-top:18px;
+  border:0;
+  border-radius:11px;
+  background:linear-gradient(135deg,#72efc0,#38d49e);
+  color:#05100b;
+  font-family:var(--sans);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  overflow:hidden;
+  transition:
+    transform .2s ease,
+    filter .2s ease,
+    box-shadow .2s ease;
+  box-shadow:0 10px 28px rgba(47,207,151,.12);
+}
+
+.generate::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:60%;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.25),
+    transparent
+  );
+  transform:skewX(-20deg);
+}
+
+.generate:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.06);
+  box-shadow:0 14px 35px rgba(47,207,151,.18);
+}
+
+.generate:hover::after{
+  animation:shine .7s ease;
+}
+
+.generate:active{
+  transform:translateY(0);
+}
+
+.generate:disabled{
+  cursor:not-allowed;
+  opacity:.65;
+  transform:none;
+}
+
+/* Loader */
+.loader{
+  display:inline-block;
+  width:14px;
+  height:14px;
+  border:2px solid rgba(0,0,0,.2);
+  border-top-color:#06110c;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  vertical-align:-2px;
+  margin-right:7px;
+}
+
+/* Error */
+.error{
+  display:none;
+  margin-top:14px;
+  padding:13px 14px;
+  border-radius:11px;
+  border:1px solid rgba(255,111,131,.3);
+  background:rgba(255,111,131,.07);
+  color:#ff8c9c;
+  font-size:11px;
+  line-height:1.5;
+  animation:shake .25s ease;
+}
+
+.error.show{
+  display:block;
+}
+
+/* Result */
+.result{
+  display:none;
+  margin-top:16px;
+  padding:20px;
+  border:1px solid rgba(98,230,180,.25);
+  border-radius:var(--radius);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(98,230,180,.07),
+      rgba(17,23,32,.8)
+    );
+  box-shadow:0 18px 50px rgba(0,0,0,.22);
+  animation:resultIn .4s ease;
+}
+
+.result.show{
+  display:block;
+}
+
+.result-top{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:16px;
+}
+
+.success-icon{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:rgba(98,230,180,.1);
+  color:var(--accent);
+  font-size:17px;
+}
+
+.result-title{
+  margin:0;
+  font-size:13px;
+  font-weight:800;
+}
+
+.result-subtitle{
+  margin:3px 0 0;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.url-box{
+  display:flex;
+  gap:8px;
+}
+
+.url-box input{
+  min-width:0;
+  flex:1;
+  height:45px;
+  border:1px solid rgba(98,230,180,.25);
+  background:#080d13;
+  color:var(--accent);
+  padding:0 12px;
+  border-radius:9px;
+  font-family:var(--mono);
+  font-size:10px;
+}
+
+.copy{
+  flex:0 0 auto;
+  height:45px;
+  padding:0 16px;
+  border:0;
+  border-radius:9px;
+  background:var(--accent);
+  color:#06110c;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+.copy:hover{
+  filter:brightness(1.08);
+}
+
+.copy.copied{
+  background:#29333e;
+  color:var(--accent);
+}
+
+.open-link{
+  display:block;
+  margin-top:12px;
+  color:var(--muted);
+  text-decoration:none;
+  font-size:10px;
+  transition:.2s;
+}
+
+.open-link:hover{
+  color:var(--accent);
+}
+
+/* Footer */
+.footer{
+  margin-top:18px;
+  text-align:center;
+  color:#4f5a69;
+  font-size:9px;
+  line-height:1.7;
+  animation:fadeUp .7s .1s ease both;
+}
+
+.footer span{
+  color:#687587;
+}
+
+/* Mobile */
+@media(max-width:600px){
+  .container{
+    width:min(100% - 18px,720px);
+    padding:24px 0 30px;
+  }
+
+  .header{
     margin-bottom:18px;
   }
-  label{
-    display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
-    color:var(--muted);margin-bottom:8px;
-  }
-  input[type="text"], input[type="password"]{
-    width:100%;background:#0b1015;border:1px solid var(--line);color:var(--text);
-    padding:10px 12px;border-radius:6px;font-family:var(--mono);font-size:13px;
-    outline:none;
-  }
-  input[type="text"]:focus, input[type="password"]:focus, textarea:focus{border-color:var(--accent-dim);}
 
-  .tabs{display:flex;gap:6px;margin-bottom:16px;}
-  .tab{
-    flex:1;padding:9px 0;text-align:center;font-size:12px;letter-spacing:.05em;
-    border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--muted);
-    background:#0b1015;transition:.15s;
-  }
-  .tab.active{color:var(--bg);background:var(--accent);border-color:var(--accent);font-weight:600;}
-
-  textarea{
-    width:100%;min-height:220px;background:#0b1015;border:1px solid var(--line);color:var(--text);
-    padding:12px;border-radius:6px;font-family:var(--mono);font-size:13px;resize:vertical;outline:none;
-    line-height:1.5;
+  .brand-text h1{
+    font-size:16px;
   }
 
+  .brand-text p{
+    font-size:9px;
+  }
+
+  .status{
+    display:none;
+  }
+
+  .card{
+    padding:15px;
+    border-radius:15px;
+  }
+
+  textarea,
   .drop{
-    border:1.5px dashed var(--line);border-radius:8px;padding:34px 16px;text-align:center;
-    color:var(--muted);font-size:12.5px;cursor:pointer;transition:.15s;
-  }
-  .drop.drag{border-color:var(--accent);color:var(--accent);background:rgba(94,201,166,.05);}
-  .drop b{color:var(--text);}
-  .file-info{margin-top:10px;font-size:12px;color:var(--accent);display:none;}
-
-  .row{display:flex;gap:10px;margin-top:16px;}
-  .row > div{flex:1;}
-
-  select{
-    width:100%;background:#0b1015;border:1px solid var(--line);color:var(--text);
-    padding:10px 12px;border-radius:6px;font-family:var(--mono);font-size:13px;outline:none;
+    min-height:220px;
   }
 
-  button.go{
-    width:100%;margin-top:18px;padding:13px;border:none;border-radius:6px;
-    background:var(--accent);color:#08120e;font-weight:700;font-size:13px;
-    letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:.15s;
+  .options{
+    grid-template-columns:1fr;
   }
-  button.go:hover{filter:brightness(1.08);}
-  button.go:disabled{background:var(--line);color:var(--muted);cursor:not-allowed;}
+
+  .url-box{
+    flex-direction:column;
+  }
+
+  .copy{
+    width:100%;
+  }
 
   .result{
-    display:none;background:var(--panel);border:1px solid var(--accent-dim);border-radius:10px;
-    padding:20px;margin-top:4px;
+    padding:15px;
   }
-  .result.show{display:block;}
-  .result .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
-  .url-box{
-    display:flex;gap:8px;
-  }
-  .url-box input{
-    flex:1;background:#0b1015;border:1px solid var(--accent-dim);color:var(--accent);
-    padding:11px 12px;border-radius:6px;font-family:var(--mono);font-size:13px;
-  }
-  .copy-btn{
-    background:var(--accent);border:none;color:#08120e;padding:0 16px;border-radius:6px;
-    font-weight:700;font-size:12px;cursor:pointer;
-  }
-  .copy-btn.copied{background:#3b4552;color:var(--muted);}
+}
 
-  .error{
-    display:none;background:rgba(229,103,122,.08);border:1px solid var(--danger);color:var(--danger);
-    border-radius:8px;padding:12px 14px;font-size:12.5px;margin-top:4px;
+/* Animations */
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform:translateY(12px);
   }
-  .error.show{display:block;}
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
 
-  .hint{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
-  .hint a{color:var(--accent);}
+@keyframes fadeIn{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+
+@keyframes resultIn{
+  from{
+    opacity:0;
+    transform:translateY(10px) scale(.99);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
+
+@keyframes shine{
+  from{left:-100%;}
+  to{left:140%;}
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-4px);}
+  75%{transform:translateX(4px);}
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
 
-  <div class="brand">
-    <div class="dot"></div>
-    <h1>IND HUB</h1>
-    <span>· generates a Pastefy url from text or a file</span>
-  </div>
+<div class="container">
 
-  <div class="panel">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <div class="logo">IND</div>
+
+      <div class="brand-text">
+        <h1>IND HUB</h1>
+        <p>Paste generator &amp; script loader</p>
+      </div>
+    </div>
+
+    <div class="status">
+      <span class="status-dot"></span>
+      PASTEFY READY
+    </div>
+  </header>
+
+
+  <!-- MAIN -->
+  <main class="card">
+
+    <!-- TABS -->
     <div class="tabs">
-      <div class="tab active" data-mode="text">Text</div>
-      <div class="tab" data-mode="file">File</div>
+      <button class="tab active" data-mode="text">
+        TEXT
+      </button>
+
+      <button class="tab" data-mode="file">
+        FILE
+      </button>
     </div>
 
-    <div id="textMode">
-      <label>Content</label>
-      <textarea id="textInput" placeholder="Paste or type anything here..."></textarea>
-    </div>
 
-    <div id="fileMode" style="display:none;">
-      <label>File</label>
+    <!-- TEXT MODE -->
+    <section id="textMode" class="section">
+
+      <label for="textInput">Script / Content</label>
+
+      <textarea
+        id="textInput"
+        spellcheck="false"
+        placeholder="Paste your script or content here..."
+      ></textarea>
+
+    </section>
+
+
+    <!-- FILE MODE -->
+    <section id="fileMode" class="section" style="display:none;">
+
+      <label>Upload File</label>
+
       <div class="drop" id="dropZone">
-        Drag &amp; drop a file here, or <b>click to browse</b><br>
-        <span style="font-size:11px;">text-based files work best (code, logs, json, csv...)</span>
-        <div class="file-info" id="fileInfo"></div>
-      </div>
-      <input type="file" id="fileInput" style="display:none;">
-    </div>
 
-    <div class="row">
-      <div>
-        <label>Title (optional)</label>
-        <input type="text" id="titleInput" placeholder="Untitled">
+        <div class="upload-icon">↑</div>
+
+        <strong>Drop your file here</strong>
+
+        <div>
+          or click to browse
+        </div>
+
+        <small>
+          TXT, LUA, JSON, JS, HTML and other text files
+        </small>
+
+        <div class="file-info" id="fileInfo"></div>
+
       </div>
+
+      <input
+        type="file"
+        id="fileInput"
+        hidden
+      >
+
+    </section>
+
+
+    <!-- OPTIONS -->
+    <div class="options">
+
       <div>
-        <label>Visibility</label>
+        <label for="titleInput">Title</label>
+
+        <input
+          type="text"
+          id="titleInput"
+          placeholder="Untitled"
+        >
+      </div>
+
+      <div>
+        <label for="visibility">Visibility</label>
+
         <select id="visibility">
           <option value="UNLISTED">Unlisted</option>
           <option value="PUBLIC">Public</option>
           <option value="PRIVATE">Private</option>
         </select>
       </div>
+
     </div>
 
-    <button class="go" id="submitBtn">Generate URL</button>
-  </div>
 
+    <!-- GENERATE -->
+    <button class="generate" id="submitBtn">
+      Generate Loadstring
+    </button>
+
+  </main>
+
+
+  <!-- ERROR -->
   <div class="error" id="errorBox"></div>
 
-  <div class="result" id="resultBox">
-    <div class="label">Your paste is live</div>
-    <div class="url-box">
-      <input type="text" id="resultUrl" readonly>
-      <button class="copy-btn" id="copyBtn">Copy</button>
-    </div>
-    <div class="hint">Opens on <a id="openLink" href="#" target="_blank" rel="noopener">pastefy.app</a></div>
-  </div>
 
-  <div class="hint" style="text-align:center;margin-top:20px;">
-    Runs in your browser and relays the request through a public CORS proxy (corsproxy.io), since Pastefy's API doesn't allow direct browser calls.
-  </div>
+  <!-- RESULT -->
+  <section class="result" id="resultBox">
+
+    <div class="result-top">
+
+      <div class="success-icon">
+        ✓
+      </div>
+
+      <div>
+        <h3 class="result-title">
+          Loadstring generated
+        </h3>
+
+        <p class="result-subtitle">
+          Your Pastefy raw URL is ready.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="url-box">
+
+      <input
+        type="text"
+        id="resultUrl"
+        readonly
+      >
+
+      <button
+        class="copy"
+        id="copyBtn"
+      >
+        Copy
+      </button>
+
+    </div>
+
+
+    <a
+      class="open-link"
+      id="openLink"
+      href="#"
+      target="_blank"
+      rel="noopener"
+    >
+      Open generated paste ↗
+    </a>
+
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>IND HUB</span> · Browser-based Pastefy generator
+    <br>
+    Create → Upload → Generate → Copy
+  </footer>
 
 </div>
 
-<script>
-const PASTEFY_API_KEY = 'OlgI1kNFFj6NQwyDeoGwGTivmWh6VUxzfRWgGKDdzaFEEpqYixA1n0u8dtBO';
 
-const tabs = document.querySelectorAll('.tab');
-const textMode = document.getElementById('textMode');
-const fileMode = document.getElementById('fileMode');
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const PASTEFY_API_KEY =
+  'OlgI1kNFFj6NQwyDeoGwGTivmWh6VUxzfRWgGKDdzaFEEpqYixA1n0u8dtBO';
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const tabs =
+  document.querySelectorAll('.tab');
+
+const textMode =
+  document.getElementById('textMode');
+
+const fileMode =
+  document.getElementById('fileMode');
+
+const textInput =
+  document.getElementById('textInput');
+
+const titleInput =
+  document.getElementById('titleInput');
+
+const visibility =
+  document.getElementById('visibility');
+
+const dropZone =
+  document.getElementById('dropZone');
+
+const fileInput =
+  document.getElementById('fileInput');
+
+const fileInfo =
+  document.getElementById('fileInfo');
+
+const submitBtn =
+  document.getElementById('submitBtn');
+
+const errorBox =
+  document.getElementById('errorBox');
+
+const resultBox =
+  document.getElementById('resultBox');
+
+const resultUrl =
+  document.getElementById('resultUrl');
+
+const openLink =
+  document.getElementById('openLink');
+
+const copyBtn =
+  document.getElementById('copyBtn');
+
+
 let mode = 'text';
 let selectedFile = null;
 
-tabs.forEach(t => t.addEventListener('click', () => {
-  tabs.forEach(x => x.classList.remove('active'));
-  t.classList.add('active');
-  mode = t.dataset.mode;
-  textMode.style.display = mode === 'text' ? 'block' : 'none';
-  fileMode.style.display = mode === 'file' ? 'block' : 'none';
-}));
 
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const fileInfo = document.getElementById('fileInfo');
+/* =========================================================
+   TAB SWITCHING
+========================================================= */
 
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
+tabs.forEach(tab => {
+
+  tab.addEventListener('click', () => {
+
+    tabs.forEach(t =>
+      t.classList.remove('active')
+    );
+
+    tab.classList.add('active');
+
+    mode = tab.dataset.mode;
+
+    textMode.style.display =
+      mode === 'text' ? 'block' : 'none';
+
+    fileMode.style.display =
+      mode === 'file' ? 'block' : 'none';
+
+  });
+
+});
+
+
+/* =========================================================
+   FILE UPLOAD
+========================================================= */
+
+dropZone.addEventListener('click', () => {
+  fileInput.click();
+});
+
+
+dropZone.addEventListener('dragover', event => {
+
+  event.preventDefault();
+
+  dropZone.classList.add('drag');
+
+});
+
+
+dropZone.addEventListener('dragleave', () => {
+
   dropZone.classList.remove('drag');
-  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', () => {
-  if (fileInput.files.length) handleFile(fileInput.files[0]);
+
 });
 
-function handleFile(file) {
-  selectedFile = file;
-  fileInfo.style.display = 'block';
-  fileInfo.textContent = `Selected: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
-  const titleInput = document.getElementById('titleInput');
-  if (!titleInput.value) titleInput.value = file.name;
-}
 
-const submitBtn = document.getElementById('submitBtn');
-const errorBox = document.getElementById('errorBox');
-const resultBox = document.getElementById('resultBox');
-const resultUrl = document.getElementById('resultUrl');
-const openLink = document.getElementById('openLink');
-const copyBtn = document.getElementById('copyBtn');
+dropZone.addEventListener('drop', event => {
 
-function showError(msg) {
-  errorBox.textContent = msg;
-  errorBox.classList.add('show');
-  resultBox.classList.remove('show');
-}
-function clearError() {
-  errorBox.classList.remove('show');
-}
+  event.preventDefault();
 
-async function getContent() {
-  if (mode === 'text') {
-    const val = document.getElementById('textInput').value;
-    if (!val.trim()) throw new Error('Type or paste some text first.');
-    return val;
-  } else {
-    if (!selectedFile) throw new Error('Choose a file first.');
-    return await selectedFile.text();
+  dropZone.classList.remove('drag');
+
+  if(event.dataTransfer.files.length){
+
+    handleFile(
+      event.dataTransfer.files[0]
+    );
+
   }
+
+});
+
+
+fileInput.addEventListener('change', () => {
+
+  if(fileInput.files.length){
+
+    handleFile(
+      fileInput.files[0]
+    );
+
+  }
+
+});
+
+
+function handleFile(file){
+
+  selectedFile = file;
+
+  fileInfo.style.display = 'block';
+
+  fileInfo.textContent =
+    `✓ ${file.name} · ${(file.size / 1024).toFixed(1)} KB`;
+
+  if(!titleInput.value.trim()){
+
+    titleInput.value =
+      file.name;
+
+  }
+
 }
+
+
+/* =========================================================
+   ERROR HANDLING
+========================================================= */
+
+function showError(message){
+
+  errorBox.textContent = message;
+
+  errorBox.classList.add('show');
+
+}
+
+
+function clearError(){
+
+  errorBox.textContent = '';
+
+  errorBox.classList.remove('show');
+
+}
+
+
+/* =========================================================
+   GET CONTENT
+========================================================= */
+
+async function getContent(){
+
+  if(mode === 'text'){
+
+    const content =
+      textInput.value;
+
+    if(!content.trim()){
+
+      throw new Error(
+        'Please paste or type some content first.'
+      );
+
+    }
+
+    return content;
+
+  }
+
+
+  if(!selectedFile){
+
+    throw new Error(
+      'Please choose a file first.'
+    );
+
+  }
+
+
+  return await selectedFile.text();
+
+}
+
+
+/* =========================================================
+   GENERATE
+========================================================= */
 
 submitBtn.addEventListener('click', async () => {
+
   clearError();
+
   resultBox.classList.remove('show');
 
+
   let content;
-  try {
-    content = await getContent();
-  } catch (err) {
-    return showError(err.message);
+
+  try{
+
+    content =
+      await getContent();
+
+  }catch(error){
+
+    showError(error.message);
+
+    return;
+
   }
 
-  const title = document.getElementById('titleInput').value.trim() || 'Untitled';
-  const visibility = document.getElementById('visibility').value;
+
+  const title =
+    titleInput.value.trim() ||
+    'Untitled';
+
+  const visibilityValue =
+    visibility.value;
+
 
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Generating...';
 
-  try {
-    let res;
-    try {
-      const proxied = 'https://corsproxy.io/?url=' + encodeURIComponent('https://pastefy.app/api/v2/paste');
-      res = await fetch(proxied, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${PASTEFY_API_KEY}`
+  submitBtn.innerHTML =
+    '<span class="loader"></span>Generating...';
+
+
+  try{
+
+    const target =
+      'https://pastefy.app/api/v2/paste';
+
+    const proxied =
+      'https://corsproxy.io/?url=' +
+      encodeURIComponent(target);
+
+
+    const response =
+      await fetch(proxied, {
+
+        method:'POST',
+
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':
+            `Bearer ${PASTEFY_API_KEY}`
         },
-        body: JSON.stringify({
-          title: title,
-          content: content,
-          visibility: visibility,
-          type: 'PASTE'
+
+        body:JSON.stringify({
+
+          title:title,
+
+          content:content,
+
+          visibility:visibilityValue,
+
+          type:'PASTE'
+
         })
+
       });
-    } catch (networkErr) {
-      throw new Error('Could not reach Pastefy, even through the proxy. Check your network connection and try again.');
-    }
 
-    const raw = await res.text();
+
+    const raw =
+      await response.text();
+
+
     let data;
-    try { data = JSON.parse(raw); } catch { data = null; }
 
-    if (!res.ok) {
-      const msg = (data && (data.message || data.error)) || raw || `Request failed (HTTP ${res.status})`;
-      throw new Error(msg);
-    }
-    if (!data || !data.paste) {
-      throw new Error('Unexpected response from Pastefy.');
+    try{
+
+      data =
+        JSON.parse(raw);
+
+    }catch{
+
+      data = null;
+
     }
 
-    const url = `loadstring(game:HttpGet("https://pastefy.app/${data.paste.id}/raw"))()`;
-    resultUrl.value = url;
-    openLink.href = url;
+
+    if(!response.ok){
+
+      const message =
+        data?.message ||
+        data?.error ||
+        raw ||
+        `Request failed: HTTP ${response.status}`;
+
+      throw new Error(message);
+
+    }
+
+
+    if(!data?.paste?.id){
+
+      throw new Error(
+        'Pastefy returned an unexpected response.'
+      );
+
+    }
+
+
+    const rawUrl =
+      `https://pastefy.app/${data.paste.id}/raw`;
+
+
+    const loadstring =
+      `loadstring(game:HttpGet("${rawUrl}"))()`;
+
+
+    resultUrl.value =
+      loadstring;
+
+    openLink.href =
+      rawUrl;
+
+
     resultBox.classList.add('show');
-    copyBtn.textContent = 'Copy';
+
+
+    copyBtn.textContent =
+      'Copy';
+
     copyBtn.classList.remove('copied');
-  } catch (err) {
-    showError(err.message || 'Something went wrong. Try again.');
-  } finally {
+
+
+    resultBox.scrollIntoView({
+      behavior:'smooth',
+      block:'nearest'
+    });
+
+
+  }catch(error){
+
+    showError(
+      error.message ||
+      'Something went wrong. Please try again.'
+    );
+
+  }finally{
+
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Generate URL';
+
+    submitBtn.textContent =
+      'Generate Loadstring';
+
   }
+
 });
 
-copyBtn.addEventListener('click', () => {
-  resultUrl.select();
-  navigator.clipboard.writeText(resultUrl.value).then(() => {
-    copyBtn.textContent = 'Copied';
-    copyBtn.classList.add('copied');
-    setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 1500);
-  });
+
+/* =========================================================
+   COPY
+========================================================= */
+
+copyBtn.addEventListener('click', async () => {
+
+  const value =
+    resultUrl.value;
+
+  if(!value) return;
+
+
+  try{
+
+    await navigator.clipboard.writeText(value);
+
+  }catch{
+
+    resultUrl.select();
+
+    document.execCommand('copy');
+
+  }
+
+
+  copyBtn.textContent =
+    'Copied ✓';
+
+  copyBtn.classList.add('copied');
+
+
+  setTimeout(() => {
+
+    copyBtn.textContent =
+      'Copy';
+
+    copyBtn.classList.remove('copied');
+
+  },1600);
+
 });
+
+
+/* =========================================================
+   KEYBOARD SHORTCUT
+========================================================= */
+
+document.addEventListener('keydown', event => {
+
+  if(
+    (event.ctrlKey || event.metaKey) &&
+    event.key === 'Enter'
+  ){
+
+    event.preventDefault();
+
+    if(!submitBtn.disabled){
+
+      submitBtn.click();
+
+    }
+
+  }
+
+});
+
 </script>
+
 </body>
 </html>
