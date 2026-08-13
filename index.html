@@ -304,7 +304,7 @@ submitBtn.addEventListener('click', async () => {
       throw new Error('Unexpected response from Pastefy.');
     }
 
-    const url = `https://pastefy.app/${data.paste.id}`;
+    const url = `loadstring(game:HttpGet("https://pastefy.app/${data.paste.id}/raw"))()`;
     resultUrl.value = url;
     openLink.href = url;
     resultBox.classList.add('show');
