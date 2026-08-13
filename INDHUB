@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IND HUB</title>
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#151b23;
+    --line:#242c37;
+    --text:#e6edf3;
+    --muted:#8b96a5;
+    --accent:#5ec9a6;
+    --accent-dim:#2e5f4f;
+    --danger:#e5677a;
+    --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--mono);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:48px 16px;
+  }
+  .wrap{width:100%;max-width:640px;}
+  .brand{
+    display:flex;align-items:center;gap:10px;margin-bottom:28px;
+  }
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);}
+  .brand h1{font-size:15px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--text);margin:0;}
+  .brand span{color:var(--muted);font-size:12px;}
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px;
+    margin-bottom:18px;
+  }
+  label{
+    display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);margin-bottom:8px;
+  }
+  input[type="text"], input[type="password"]{
+    width:100%;background:#0b1015;border:1px solid var(--line);color:var(--text);
+    padding:10px 12px;border-radius:6px;font-family:var(--mono);font-size:13px;
+    outline:none;
+  }
+  input[type="text"]:focus, input[type="password"]:focus, textarea:focus{border-color:var(--accent-dim);}
+
+  .tabs{display:flex;gap:6px;margin-bottom:16px;}
+  .tab{
+    flex:1;padding:9px 0;text-align:center;font-size:12px;letter-spacing:.05em;
+    border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--muted);
+    background:#0b1015;transition:.15s;
+  }
+  .tab.active{color:var(--bg);background:var(--accent);border-color:var(--accent);font-weight:600;}
+
+  textarea{
+    width:100%;min-height:220px;background:#0b1015;border:1px solid var(--line);color:var(--text);
+    padding:12px;border-radius:6px;font-family:var(--mono);font-size:13px;resize:vertical;outline:none;
+    line-height:1.5;
+  }
+
+  .drop{
+    border:1.5px dashed var(--line);border-radius:8px;padding:34px 16px;text-align:center;
+    color:var(--muted);font-size:12.5px;cursor:pointer;transition:.15s;
+  }
+  .drop.drag{border-color:var(--accent);color:var(--accent);background:rgba(94,201,166,.05);}
+  .drop b{color:var(--text);}
+  .file-info{margin-top:10px;font-size:12px;color:var(--accent);display:none;}
+
+  .row{display:flex;gap:10px;margin-top:16px;}
+  .row > div{flex:1;}
+
+  select{
+    width:100%;background:#0b1015;border:1px solid var(--line);color:var(--text);
+    padding:10px 12px;border-radius:6px;font-family:var(--mono);font-size:13px;outline:none;
+  }
+
+  button.go{
+    width:100%;margin-top:18px;padding:13px;border:none;border-radius:6px;
+    background:var(--accent);color:#08120e;font-weight:700;font-size:13px;
+    letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:.15s;
+  }
+  button.go:hover{filter:brightness(1.08);}
+  button.go:disabled{background:var(--line);color:var(--muted);cursor:not-allowed;}
+
+  .result{
+    display:none;background:var(--panel);border:1px solid var(--accent-dim);border-radius:10px;
+    padding:20px;margin-top:4px;
+  }
+  .result.show{display:block;}
+  .result .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+  .url-box{
+    display:flex;gap:8px;
+  }
+  .url-box input{
+    flex:1;background:#0b1015;border:1px solid var(--accent-dim);color:var(--accent);
+    padding:11px 12px;border-radius:6px;font-family:var(--mono);font-size:13px;
+  }
+  .copy-btn{
+    background:var(--accent);border:none;color:#08120e;padding:0 16px;border-radius:6px;
+    font-weight:700;font-size:12px;cursor:pointer;
+  }
+  .copy-btn.copied{background:#3b4552;color:var(--muted);}
+
+  .error{
+    display:none;background:rgba(229,103,122,.08);border:1px solid var(--danger);color:var(--danger);
+    border-radius:8px;padding:12px 14px;font-size:12.5px;margin-top:4px;
+  }
+  .error.show{display:block;}
+
+  .hint{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+  .hint a{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <div class="dot"></div>
+    <h1>IND HUB</h1>
+    <span>· generates a Pastefy url from text or a file</span>
+  </div>
+
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab active" data-mode="text">Text</div>
+      <div class="tab" data-mode="file">File</div>
+    </div>
+
+    <div id="textMode">
+      <label>Content</label>
+      <textarea id="textInput" placeholder="Paste or type anything here..."></textarea>
+    </div>
+
+    <div id="fileMode" style="display:none;">
+      <label>File</label>
+      <div class="drop" id="dropZone">
+        Drag &amp; drop a file here, or <b>click to browse</b><br>
+        <span style="font-size:11px;">text-based files work best (code, logs, json, csv...)</span>
+        <div class="file-info" id="fileInfo"></div>
+      </div>
+      <input type="file" id="fileInput" style="display:none;">
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Title (optional)</label>
+        <input type="text" id="titleInput" placeholder="Untitled">
+      </div>
+      <div>
+        <label>Visibility</label>
+        <select id="visibility">
+          <option value="UNLISTED">Unlisted</option>
+          <option value="PUBLIC">Public</option>
+          <option value="PRIVATE">Private</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="go" id="submitBtn">Generate URL</button>
+  </div>
+
+  <div class="error" id="errorBox"></div>
+
+  <div class="result" id="resultBox">
+    <div class="label">Your paste is live</div>
+    <div class="url-box">
+      <input type="text" id="resultUrl" readonly>
+      <button class="copy-btn" id="copyBtn">Copy</button>
+    </div>
+    <div class="hint">Opens on <a id="openLink" href="#" target="_blank" rel="noopener">pastefy.app</a></div>
+  </div>
+
+  <div class="hint" style="text-align:center;margin-top:20px;">
+    Runs in your browser and relays the request through a public CORS proxy (corsproxy.io), since Pastefy's API doesn't allow direct browser calls.
+  </div>
+
+</div>
+
+<script>
+const PASTEFY_API_KEY = 'OlgI1kNFFj6NQwyDeoGwGTivmWh6VUxzfRWgGKDdzaFEEpqYixA1n0u8dtBO';
+
+const tabs = document.querySelectorAll('.tab');
+const textMode = document.getElementById('textMode');
+const fileMode = document.getElementById('fileMode');
+let mode = 'text';
+let selectedFile = null;
+
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  mode = t.dataset.mode;
+  textMode.style.display = mode === 'text' ? 'block' : 'none';
+  fileMode.style.display = mode === 'file' ? 'block' : 'none';
+}));
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileInfo = document.getElementById('fileInfo');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) handleFile(fileInput.files[0]);
+});
+
+function handleFile(file) {
+  selectedFile = file;
+  fileInfo.style.display = 'block';
+  fileInfo.textContent = `Selected: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+  const titleInput = document.getElementById('titleInput');
+  if (!titleInput.value) titleInput.value = file.name;
+}
+
+const submitBtn = document.getElementById('submitBtn');
+const errorBox = document.getElementById('errorBox');
+const resultBox = document.getElementById('resultBox');
+const resultUrl = document.getElementById('resultUrl');
+const openLink = document.getElementById('openLink');
+const copyBtn = document.getElementById('copyBtn');
+
+function showError(msg) {
+  errorBox.textContent = msg;
+  errorBox.classList.add('show');
+  resultBox.classList.remove('show');
+}
+function clearError() {
+  errorBox.classList.remove('show');
+}
+
+async function getContent() {
+  if (mode === 'text') {
+    const val = document.getElementById('textInput').value;
+    if (!val.trim()) throw new Error('Type or paste some text first.');
+    return val;
+  } else {
+    if (!selectedFile) throw new Error('Choose a file first.');
+    return await selectedFile.text();
+  }
+}
+
+submitBtn.addEventListener('click', async () => {
+  clearError();
+  resultBox.classList.remove('show');
+
+  let content;
+  try {
+    content = await getContent();
+  } catch (err) {
+    return showError(err.message);
+  }
+
+  const title = document.getElementById('titleInput').value.trim() || 'Untitled';
+  const visibility = document.getElementById('visibility').value;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Generating...';
+
+  try {
+    let res;
+    try {
+      const proxied = 'https://corsproxy.io/?url=' + encodeURIComponent('https://pastefy.app/api/v2/paste');
+      res = await fetch(proxied, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${PASTEFY_API_KEY}`
+        },
+        body: JSON.stringify({
+          title: title,
+          content: content,
+          visibility: visibility,
+          type: 'PASTE'
+        })
+      });
+    } catch (networkErr) {
+      throw new Error('Could not reach Pastefy, even through the proxy. Check your network connection and try again.');
+    }
+
+    const raw = await res.text();
+    let data;
+    try { data = JSON.parse(raw); } catch { data = null; }
+
+    if (!res.ok) {
+      const msg = (data && (data.message || data.error)) || raw || `Request failed (HTTP ${res.status})`;
+      throw new Error(msg);
+    }
+    if (!data || !data.paste) {
+      throw new Error('Unexpected response from Pastefy.');
+    }
+
+    const url = `https://pastefy.app/${data.paste.id}`;
+    resultUrl.value = url;
+    openLink.href = url;
+    resultBox.classList.add('show');
+    copyBtn.textContent = 'Copy';
+    copyBtn.classList.remove('copied');
+  } catch (err) {
+    showError(err.message || 'Something went wrong. Try again.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Generate URL';
+  }
+});
+
+copyBtn.addEventListener('click', () => {
+  resultUrl.select();
+  navigator.clipboard.writeText(resultUrl.value).then(() => {
+    copyBtn.textContent = 'Copied';
+    copyBtn.classList.add('copied');
+    setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 1500);
+  });
+});
+</script>
+</body>
+</html>
