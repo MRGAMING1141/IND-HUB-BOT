@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const token = process.env.PASTEFY_API_TOKEN;
+    const token = process.env.OlgI1kNFFj6NQwyDeoGwGTivmWh6VUxzfRWgGKDdzaFEEpqYixA1n0u8dtBO;
     if (!token) return res.status(500).json({ error: 'PASTEFY_API_TOKEN is not configured.' });
 
     const { content, title } = req.body || {};
