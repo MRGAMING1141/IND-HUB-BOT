@@ -1,1 +1,63 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07070b"><title>IND HUB • Loadstring Generator</title><link rel="stylesheet" href="style.css"></head><body><div class="bg"></div><main><header><div class="brand"><span>⚡</span><div><strong>IND HUB</strong><small>LOADSTRING GENERATOR</small></div></div><div class="status-dot"><i></i> PASTEFY</div></header><section class="hero"><div class="tag">SCRIPT TOOL</div><h1>Generate your <em>loadstring.</em></h1><p>Paste or upload your Lua/Luau script. One click creates a fresh Pastefy link.</p></section><section class="panel"><div class="panel-head"><div class="heading"><span class="num">01</span><div><h2>Your script</h2><p>Paste code below or select a file.</p></div></div><button id="clear" class="btn ghost" type="button">Clear</button></div><input id="scriptTitle" maxlength="120" value="IND HUB SCRIPT" placeholder="Paste title"><textarea id="source" spellcheck="false" placeholder="-- Paste your Lua / Luau script here..."></textarea><div class="file-row"><input id="luaFile" type="file" accept=".lua,.luau" hidden><button id="chooseFile" class="btn secondary" type="button">📁 Choose file</button><span id="fileInfo">No file selected</span></div><div class="bottom-row"><span id="counter">0 characters</span><button id="generate" class="btn primary" type="button">⚡ Generate loadstring</button></div><div id="status" role="status"></div></section><section class="panel output"><div class="panel-head"><div class="heading"><span class="num">02</span><div><h2>Result</h2><p>Your fresh Pastefy URL and loader.</p></div></div><span id="ready" class="ready">WAITING</span></div><label>Pastefy raw URL</label><div class="copy-row"><input id="rubisUrl" readonly placeholder="Waiting for generation..."><button id="copyUrl" class="btn secondary" type="button">Copy</button></div><label>Loadstring</label><div class="copy-row"><textarea id="loader" readonly placeholder="loadstring(game:HttpGet(...))()"></textarea><button id="copyLoader" class="btn secondary" type="button">Copy</button></div><div class="tip">🔒 <span>Pastefy token stays on the server. Customers never enter it.</span></div></section><footer>IND HUB • MR_GAMING1141 • Pastefy-powered</footer></main><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08090d">
+<title>IND HUB — Loadstring Generator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="background"></div>
+<main class="site">
+  <header class="nav">
+    <a class="brand" href="./" aria-label="IND HUB home">
+      <span class="brand-icon">⚡</span>
+      <span><strong>IND HUB</strong><small>LOADSTRING GENERATOR</small></span>
+    </a>
+    <div class="connection"><i></i> PASTEFY</div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">SCRIPT TOOL • FAST • SIMPLE</div>
+    <h1>Generate a <span>loadstring</span><br>in seconds.</h1>
+    <p>Paste your Lua/Luau script, or upload a file. IND HUB creates a fresh Pastefy link for every generation.</p>
+  </section>
+
+  <section class="generator">
+    <div class="card editor">
+      <div class="card-title"><div><span class="step">01</span><span><b>Script</b><small>Your Lua or Luau code</small></span></div><button id="clear" class="text-btn" type="button">Clear</button></div>
+      <label for="scriptTitle">TITLE</label>
+      <input id="scriptTitle" maxlength="120" value="IND HUB SCRIPT" placeholder="Script title">
+      <div class="code-wrap">
+        <textarea id="source" spellcheck="false" placeholder="-- Paste your Lua / Luau script here..."></textarea>
+        <div class="codebar"><span id="counter">0 characters</span><span>UTF-8</span></div>
+      </div>
+      <div class="upload-line">
+        <input id="luaFile" type="file" accept=".lua,.luau" hidden>
+        <button id="chooseFile" class="secondary" type="button">📁 Upload .lua / .luau</button>
+        <span id="fileInfo">No file selected</span>
+      </div>
+      <button id="generate" class="generate" type="button"><span>⚡</span> Generate Loadstring</button>
+      <div id="status" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="card result">
+      <div class="card-title"><div><span class="step">02</span><span><b>Result</b><small>Ready to copy</small></span></div><span id="ready" class="state">WAITING</span></div>
+      <div class="result-field">
+        <div class="field-head"><label for="rubisUrl">PASTEFY RAW URL</label><button id="copyUrl" class="copy" type="button">COPY</button></div>
+        <input id="rubisUrl" readonly placeholder="Your new raw URL will appear here">
+      </div>
+      <div class="result-field">
+        <div class="field-head"><label for="loader">LOADSTRING</label><button id="copyLoader" class="copy" type="button">COPY</button></div>
+        <textarea id="loader" readonly placeholder="Generate a script first..."></textarea>
+      </div>
+      <div class="security"><span>🔒</span><div><b>API token protected</b><p>The Pastefy token belongs on your server. Customers never need to enter it.</p></div></div>
+    </div>
+  </section>
+
+  <footer><b>IND HUB</b> <span>•</span> MR_GAMING1141 <span>•</span> Pastefy powered</footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
